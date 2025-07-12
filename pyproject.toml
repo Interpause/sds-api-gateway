@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "py-api-template"
+name = "sds-api-gateway"
 version = "0.1.0"
 description = "template for python api server"
 authors = ["Your Name <you@example.com>"]
@@ -7,16 +7,22 @@ readme = "README.md"
 packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
-python = "<3.13,>=3.10"
-python-dotenv = "^1.1.0"
-fastapi-slim = "^0.115.12"
-uvicorn = "^0.34.2"
+python = "3.12.*"
+python-dotenv = "^1.1.1"
+fastapi-slim = "^0.116.1"
+uvicorn = "^0.35.0"
 uvloop = "^0.21.0"
 httptools = "^0.6.4"
+av = "^15.0.0"
+groq = "^0.30.0"
+imagehash = "^4.3.2"
+pydantic = "^2.11.7"
+requests = "^2.32.4"
+websocket-client = "^1.8.0"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.11.7"
-poethepoet = "^0.34.0"
+ruff = "^0.12.3"
+poethepoet = "^0.36.0"
 rich = "^14.0.0"
 
 [tool.poetry.requires-plugins]
@@ -32,15 +38,15 @@ ipywidgets = "*"
 
 [tool.poe.tasks]
 dev = { cmd = "python dev.py", use_exec = true }
-prod = "docker run --rm --gpus all -p 3000:3000 py-api-template:latest"
+prod = "docker run --rm --gpus all -p 3000:3000 sds-api-gateway:latest"
 test = "echo Not Implemented Yet!"
 publish = "echo Not Implemented Yet!"
 requirements = "poetry export -o requirements.txt --without-hashes"
 
 [tool.poe.tasks.build]
 cmd = """docker build -f Dockerfile . \
-  -t py-api-template:latest \
-  -t py-api-template:${tag} \
+  -t sds-api-gateway:latest \
+  -t sds-api-gateway:${tag} \
 """
 deps = ["requirements"]
 args = [{ name = "tag", positional = true, required = true }]

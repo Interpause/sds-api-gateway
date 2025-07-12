@@ -1,4 +1,10 @@
-# py-api-template
+# sds-api-gateway
+
+Gateway server for all the other "microservice" servers this project neeeeeddddsss.
+
+Significant code was copied from my demo: <https://github.com/Interpause/gr-demo-3dgen.git>
+
+## Template Info
 
 Template for FastAPI-based API server. Features:
 
@@ -11,12 +17,12 @@ Template for FastAPI-based API server. Features:
 Oh yeah, this template should work with the fancy "Dev Containers: Clone Repository
 in Container Volume..." feature.
 
-## Usage Instructions
+### Usage Instructions
 
 - Replace all instances of `py-api-template`. Optionally, rename `src` to a nicer name.
   - Tip: Rename the `src` folder first for auto-refactoring.
 
-## Useful Commands
+### Useful Commands
 
 Ensure the virtual environment is active and `poetry install` has been run before using the below:
 
