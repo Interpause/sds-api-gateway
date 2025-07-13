@@ -49,6 +49,7 @@
   ],
 
   // "runArgs": ["--shm-size=4G"],
+  "runArgs": ["--network=host", "--publish=3000:3000"],
   // "shutdownAction": "none",
 
   // See: https://containers.dev/implementors/json_reference/#lifecycle-scripts
