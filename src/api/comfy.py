@@ -1,10 +1,12 @@
 """For functions related to ComfyUI."""
-# Referenced from: https://www.viewcomfy.com/blog/building-a-production-ready-comfyui-api
+# Some parts referenced from: https://www.viewcomfy.com/blog/building-a-production-ready-comfyui-api
 
 import asyncio
 import io
 import json
 import logging
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -173,6 +175,9 @@ class GenerationTask:
         self.event_log = []
         self.status: TaskStatus = "NOT_STARTED"
         self.task = None
+        self.timestamp = None
+        self.duration = None
+        self.error = None
 
     def start(self):
         """Start the generation task."""
@@ -181,22 +186,33 @@ class GenerationTask:
     async def _process(self):
         """Process task."""
         self.status = "IN_PROGRESS"
-        raw_file = None
-        gen = generate_3d_prompt(self.image, self.description)
+        self.timestamp = datetime.now()
 
-        async for done, msg in gen:
-            if not done:
-                self.event_log.append(msg)
+        raw_file = None
+        start_time = time.monotonic()
+
+        try:
+            gen = generate_3d_prompt(self.image, self.description)
+            async for done, msg in gen:
+                if not done:
+                    self.event_log.append(msg)
+                else:
+                    assert isinstance(msg, bytes), "Expected raw file data."
+                    raw_file = msg
+                    break
+            # Loop completes without yielding done=True, indicating an error.
             else:
-                assert isinstance(msg, bytes), "Expected raw file data."
-                raw_file = msg
-                break
-        # Loop completes without yielding done=True, indicating an error.
-        else:
+                raise RuntimeError("Comfyui stopped without completion.")
+
+        except Exception as e:
+            self.error = e
             self.status = "FAILED"
+            self.event_log.append(f"Error: {e}")
+            self.duration = time.monotonic() - start_time
             return None
 
         self.status = "COMPLETED"
+        self.duration = time.monotonic() - start_time
         return raw_file
 
     async def result(self):
