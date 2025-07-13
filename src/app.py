@@ -75,7 +75,7 @@ def create_app():
 
     @app.post("/3d_obj/get_status")
     async def check_obj_status(
-        req: RequestGenerationStatus,
+        req: Annotated[RequestGenerationStatus, Form()],
     ) -> ResponseGenerationStatus:
         """Endpoint to check the status of a workflow."""
         client_id = req.client_id
@@ -90,7 +90,9 @@ def create_app():
         return ResponseGenerationStatus(status=task.status)
 
     @app.post("/3d_obj/get_events")
-    async def get_obj_events(req: RequestGenerationEvents) -> ResponseGenerationEvents:
+    async def get_obj_events(
+        req: Annotated[RequestGenerationEvents, Form()],
+    ) -> ResponseGenerationEvents:
         """Endpoint to get workflow events."""
         client_id = req.client_id
         task_id = req.task_id
@@ -109,7 +111,9 @@ def create_app():
     # NOTE: As a side effect, results are only saved by the gateway if the user
     # requests it. ComfyUI still saves it tho but the filename gets lost.
     @app.post("/3d_obj/get_result")
-    async def get_obj_result(req: RequestGenerationResult) -> ResponseGenerationResult:
+    async def get_obj_result(
+        req: Annotated[RequestGenerationResult, Form()],
+    ) -> ResponseGenerationResult:
         """Endpoint to get the result of a workflow."""
         client_id = req.client_id
         task_id = req.task_id
