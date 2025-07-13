@@ -6,6 +6,7 @@ import io
 import json
 import logging
 from pathlib import Path
+from typing import Literal
 
 import imagehash
 import requests
@@ -52,6 +53,8 @@ async def track_progress():
     async for ws in connect(f"{WS_ADDRESS}/ws?clientId={CLIENT_ID}"):
         try:
             async for raw in ws:
+                # TODO: Should filter by prompt_id here, in case one day we somehow
+                # get comfyui to handle multiple workflows at once.
                 msg = json.loads(raw)
 
                 if msg["type"] == "progress":
@@ -153,3 +156,48 @@ async def generate_3d_prompt(image: Image.Image, sketch_description: str):
     filename = hist_data.outputs["154"]["result"][0]
     raw_file = get_file(filename, "3D", "output")
     yield True, raw_file
+
+TaskStatus = Literal["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "FAILED"]
+
+
+class GenerationTask:
+    """Class to manage a generation task."""
+
+    def __init__(self, image: Image.Image, description: str):
+        """Initialize."""
+        self.image = image
+        self.description = description
+        self.event_log = []
+        self.status: TaskStatus = "NOT_STARTED"
+        self.task = None
+
+    def start(self):
+        """Start the generation task."""
+        self.task = asyncio.create_task(self._process())
+
+    async def _process(self):
+        """Process task."""
+        self.status = "IN_PROGRESS"
+        raw_file = None
+        gen = generate_3d_prompt(self.image, self.description)
+
+        async for done, msg in gen:
+            if not done:
+                self.event_log.append(msg)
+            else:
+                assert isinstance(msg, bytes), "Expected raw file data."
+                raw_file = msg
+                break
+        # Loop completes without yielding done=True, indicating an error.
+        else:
+            self.status = "FAILED"
+            return None
+
+        self.status = "COMPLETED"
+        return raw_file
+
+    async def result(self):
+        """Await the result of the generation task."""
+        if self.task is None:
+            raise RuntimeError("Task not started. Call start() first.")
+        return await self.task
