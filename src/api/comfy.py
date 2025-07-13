@@ -28,6 +28,7 @@ log = logging.getLogger("app.api.comfy")
 
 class ImageMetadata(BaseModel):
     """Metadata for uploaded image (Based off API response)."""
+
     name: str
     subfolder: str
     type: str
@@ -35,6 +36,7 @@ class ImageMetadata(BaseModel):
 
 class PromptQueueResponse(BaseModel):
     """Response after submitting workflow (Based off API response)."""
+
     prompt_id: str
     number: int
     node_errors: dict
@@ -42,6 +44,7 @@ class PromptQueueResponse(BaseModel):
 
 class HistoryResponse(BaseModel):
     """Response for workflow history (Based off API response)."""
+
     prompt: list
     outputs: dict
     status: dict
@@ -70,8 +73,7 @@ async def track_progress():
                         yield "Generation complete."
                         yield True
                         return
-            raise RuntimeError(
-                "Connection closed without generation completion?")
+            raise RuntimeError("Connection closed without generation completion?")
         except ConnectionClosed:
             log.warning("WebSocket connection closed, retrying...")
             continue
@@ -97,8 +99,7 @@ def queue_prompt(image_metadata: ImageMetadata, sketch_description: str):
 
     data = {"prompt": prompt, "client_id": CLIENT_ID}
     headers = {"Content-Type": "application/json"}
-    resp = requests.post(f"{SERVER_ADDRESS}/prompt",
-                         json=data, headers=headers)
+    resp = requests.post(f"{SERVER_ADDRESS}/prompt", json=data, headers=headers)
     obj = PromptQueueResponse.model_validate_json(resp.content)
     return obj
 
@@ -113,8 +114,7 @@ def get_history(prompt_id: str):
 
 def get_file(filename: str, subfolder: str, folder_type: str):
     """Get a file from ComfyUI's storage."""
-    params = {"filename": filename,
-              "subfolder": subfolder, "type": folder_type}
+    params = {"filename": filename, "subfolder": subfolder, "type": folder_type}
     resp = requests.get(f"{SERVER_ADDRESS}/view", params=params)
     return resp.content
 

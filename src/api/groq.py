@@ -112,6 +112,5 @@ Given the user's sketch image, your task is to output a prompt for the AI art mo
     log.info(f"PROMPT:\n{prompt}")
     log.info(f"RESPONSE:\n{resp.choices[0].message}")
 
-    obj = SketchPrompt.model_validate_json(
-        resp.choices[0].message.content or "")
+    obj = SketchPrompt.model_validate_json(resp.choices[0].message.content or "")
     return obj.prompt

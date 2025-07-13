@@ -38,9 +38,8 @@ def np_wav_to_compressed_buffer(sample_rate: int, wav: np.ndarray):
     )
 
     for i in range(0, len(wav), frame_size):
-        chunk = np.ascontiguousarray(wav[i: i + frame_size].T)
-        frame = av.AudioFrame.from_ndarray(
-            chunk, format="s16p", layout="stereo")
+        chunk = np.ascontiguousarray(wav[i : i + frame_size].T)
+        frame = av.AudioFrame.from_ndarray(chunk, format="s16p", layout="stereo")
         frame.rate = sample_rate
         frames = resampler.resample(frame)
 
@@ -69,8 +68,7 @@ def setup_logging(log_path):
     fh = logging.FileHandler(log_path)
     fh.setLevel(logging.INFO)
     fh.setFormatter(
-        logging.Formatter(
-            "%(asctime)s|%(levelname)s: %(message)s", datefmt="%H:%M:%S")
+        logging.Formatter("%(asctime)s|%(levelname)s: %(message)s", datefmt="%H:%M:%S")
     )
     logger.addHandler(fh)
 
@@ -78,7 +76,6 @@ def setup_logging(log_path):
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     ch.setFormatter(
-        logging.Formatter(
-            "%(asctime)s|%(levelname)s: %(message)s", datefmt="%H:%M:%S")
+        logging.Formatter("%(asctime)s|%(levelname)s: %(message)s", datefmt="%H:%M:%S")
     )
     logger.addHandler(ch)
