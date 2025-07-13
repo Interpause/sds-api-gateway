@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import io
 import json
@@ -30,15 +31,14 @@ def groq_create_client():
     if not api_key:
         raise ValueError("GROQ_API_KEY environment variable is not set.")
 
-    return groq.Client(api_key=api_key)
+    return groq.AsyncClient(api_key=api_key)
 
 
-def groq_transcribe_audio(client: groq.Client, audio_buffer):
+async def groq_transcribe_audio(client: groq.AsyncClient, audio_buffer, filetype="ogg"):
     """Transcribe audio using the groq client."""
-    resp = client.audio.transcriptions.create(
+    resp = await client.audio.transcriptions.create(
         model=STT_MODEL,
-        # utils.py np_wav_to_compressed_buffer() uses ogg.
-        file=("audio.ogg", audio_buffer),
+        file=(f"audio.{filetype}", audio_buffer),
         language="en",
         response_format="verbose_json",
     )
@@ -62,12 +62,12 @@ PROMPT_EXAMPLES = [
 ]
 
 
-def groq_describe_image(
-    client: groq.Client, image: Image.Image, description: str | None = None
+async def groq_describe_image(
+    client: groq.AsyncClient, image: Image.Image, description: str | None = None
 ):
     """Generate prompt based off user's sketch and description."""
     buf = io.BytesIO()
-    image.save(buf, format="webp", quality=70)
+    await asyncio.to_thread(image.save, buf, format="webp", quality=70)
     img_bytes = buf.getvalue()
     buf.close()
 
@@ -84,7 +84,7 @@ Given the user's sketch image, your task is to output a prompt for the AI art mo
     if description is not None:
         prompt += f"\n\nTake into very slight consideration the user's description of their sketch:\n{description}"
 
-    resp = client.chat.completions.create(
+    resp = await client.chat.completions.create(
         messages=[
             {
                 "role": "user",
