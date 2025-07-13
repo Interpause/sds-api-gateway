@@ -19,7 +19,7 @@ def create_debug_app():
             )
         ],
     )
-    logging.getLogger("src").setLevel(logging.DEBUG)
+    logging.getLogger("app").setLevel(logging.DEBUG)
 
     from src import create_app
 

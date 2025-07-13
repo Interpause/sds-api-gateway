@@ -157,6 +157,9 @@ async def generate_3d_prompt(image: Image.Image, sketch_description: str):
     raw_file = get_file(filename, "3D", "output")
     yield True, raw_file
 
+
+# TODO: pretty limited; if we can parse the workflow events more accurately, this
+# can be more useful.
 TaskStatus = Literal["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "FAILED"]
 
 

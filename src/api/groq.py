@@ -34,11 +34,11 @@ def groq_create_client():
     return groq.AsyncClient(api_key=api_key)
 
 
-async def groq_transcribe_audio(client: groq.AsyncClient, audio_buffer, filetype="ogg"):
+async def groq_transcribe_audio(client: groq.AsyncClient, file):
     """Transcribe audio using the groq client."""
     resp = await client.audio.transcriptions.create(
         model=STT_MODEL,
-        file=(f"audio.{filetype}", audio_buffer),
+        file=file,
         language="en",
         response_format="verbose_json",
     )

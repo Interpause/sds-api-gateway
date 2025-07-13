@@ -19,6 +19,7 @@ imagehash = "^4.3.2"
 pydantic = "^2.11.7"
 requests = "^2.32.4"
 websockets = "^15.0.1"
+python-multipart = "^0.0.20"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.12.3"

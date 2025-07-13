@@ -164,4 +164,3 @@ cython_debug/
 /requirements.txt
 
 /public/generated/*
-!/public/generated/.keep
