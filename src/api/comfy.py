@@ -1,16 +1,18 @@
 """For functions related to ComfyUI."""
-
 # Referenced from: https://www.viewcomfy.com/blog/building-a-production-ready-comfyui-api
+
+import asyncio
 import io
 import json
-import time
+import logging
 from pathlib import Path
 
 import imagehash
 import requests
 from PIL import Image
 from pydantic import BaseModel
-from websocket import WebSocket
+from websockets.asyncio.client import connect
+from websockets.exceptions import ConnectionClosed
 
 import src.prompts
 
@@ -19,6 +21,8 @@ PROMPT_NAME = "sketch23d_api_faster.json"
 SERVER_ADDRESS = "http://nixrobo.home.arpa:8187"
 WS_ADDRESS = "ws://nixrobo.home.arpa:8187"
 CLIENT_ID = "literally_placeholder"
+
+log = logging.getLogger("app.api.comfy")
 
 
 class ImageMetadata(BaseModel):
@@ -43,34 +47,40 @@ class HistoryResponse(BaseModel):
     meta: dict
 
 
-def create_status_ws():
-    """Create websocket used to track progress."""
-    ws = WebSocket()
-    ws.connect(f"{WS_ADDRESS}/ws?clientId={CLIENT_ID}")
-    return ws
-
-
-def track_progress(ws: WebSocket):
+async def track_progress():
     """Generator that interprets ComfyUI's progress reports."""
-    while True:
+    async for ws in connect(f"{WS_ADDRESS}/ws?clientId={CLIENT_ID}"):
         try:
-            msg = json.loads(ws.recv())
-            if msg["type"] == "progress":
-                yield f"Progress: {msg['data']['value']}/{msg['data']['max']}"
-            elif msg["type"] == "executing":
-                yield f"Executing node: {msg['data']['node']}"
-            elif msg["type"] == "execution_cached":
-                yield f"Cached execution: {msg['data']}"
-            elif msg["type"] == "executed":
-                yield f"Executed node: {msg['data']['node']}"
-                # TODO: This is very workflow dependent atm.
-                if msg["data"]["node"] == "154":
-                    yield "Generation complete."
-                    yield True
+            async for raw in ws:
+                msg = json.loads(raw)
 
+                if msg["type"] == "progress":
+                    yield f"Progress: {msg['data']['value']}/{msg['data']['max']}"
+                elif msg["type"] == "executing":
+                    yield f"Executing node: {msg['data']['node']}"
+                elif msg["type"] == "execution_cached":
+                    yield f"Cached execution: {msg['data']}"
+                elif msg["type"] == "executed":
+                    yield f"Executed node: {msg['data']['node']}"
+                    # TODO: This is very workflow dependent atm.
+                    if msg["data"]["node"] == "154":
+                        yield "Generation complete."
+                        yield True
+                        return
+            raise RuntimeError(
+                "Connection closed without generation completion?")
+        except ConnectionClosed:
+            log.warning("WebSocket connection closed, retrying...")
+            continue
+        # If json invalid, maybe connection issue so reconnect.
+        except json.JSONDecodeError as e:
+            log.error(f"Error decoding JSON message: {e}")
+            continue
         except Exception as e:
-            yield f"Error processing message: {e}"
+            log.error(f"Unexpected error (treat as fatal): {e}")
+            yield f"Error: {e}"
             yield False
+            return
 
 
 def queue_prompt(image_metadata: ImageMetadata, sketch_description: str):
@@ -122,27 +132,22 @@ def upload_image(image: Image.Image):
     return obj
 
 
-def generate_3d_prompt(image: Image.Image, sketch_description: str):
+async def generate_3d_prompt(image: Image.Image, sketch_description: str):
     """Generator that uses ComfyUI to generate 3D object from user's sketch and description."""
-    ws = create_status_ws()
-
     img_meta = upload_image(image)
     prompt_meta = queue_prompt(img_meta, sketch_description)
 
-    try:
-        for status in track_progress(ws):
-            if isinstance(status, str):
-                yield False, status
-            elif isinstance(status, bool):
-                if status:
-                    break
-                else:
-                    yield False, "An error occurred during generation."
-                    return
-    finally:
-        ws.close()
+    async for status in track_progress():
+        if isinstance(status, str):
+            yield False, status
+        elif isinstance(status, bool):
+            if status:
+                break
+            else:
+                yield False, "An error occurred during generation."
+                return
 
-    time.sleep(1)
+    await asyncio.sleep(1)
     hist_data = get_history(prompt_meta.prompt_id)
     # TODO: This is very workflow dependent atm.
     filename = hist_data.outputs["154"]["result"][0]
