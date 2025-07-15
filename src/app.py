@@ -36,9 +36,11 @@ log = logging.getLogger("app")
 HOST_URL = "http://nixrobo.home.arpa:3000"
 
 # TODO:
-# - Setup websocket/SSE version of events so client don't have to poll server for updates.
-# - Implement the generation of 3D content using an Action model like ROS2 Actions.
+# - Setup websocket/SSE/streaming response version of events so client don't have to poll server for updates.
+# - Implement the generation of 3D content using an Action model like ROS2 Actions. (cant stop tasks atm)
+# - How to disable comfyui saving outputs, or delete them?
 # - An actual user/security system: https://fastapi.tiangolo.com/tutorial/security/get-current-user/
+#   - So how do we secure a cloud bucket with user permissions?
 
 
 def create_app():
@@ -134,6 +136,7 @@ def create_app():
 
         out_path = Path("public") / "generated" / client_id / "obj" / f"{task_id}.glb"
         out_path.parent.mkdir(parents=True, exist_ok=True)
+        # TODO: It shouldnt store this locally, rather to some cloud bucket...
         with open(out_path, "wb") as f:
             f.write(raw_file)
 

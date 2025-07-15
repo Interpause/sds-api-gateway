@@ -27,7 +27,7 @@
     }
   },
 
-  "hostRequirements": { "gpu": "optional" },
+  // "hostRequirements": { "gpu": "optional" },
 
   // Mount package caches.
   "mounts": [
