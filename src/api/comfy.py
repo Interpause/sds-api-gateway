@@ -13,17 +13,23 @@ from typing import Literal
 import imagehash
 import requests
 from PIL import Image
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from websockets.asyncio.client import connect
 from websockets.exceptions import ConnectionClosed
 
 import src.prompts
+from src.api.comfy_msg_structs import ComfyUIMessageAdapter
 
 PROMPT_DIR = Path(src.prompts.__file__).parent.absolute()
 PROMPT_NAME = "sketch23d_api_faster.json"
 SERVER_ADDRESS = "http://nixrobo.home.arpa:8187"
 WS_ADDRESS = "ws://nixrobo.home.arpa:8187"
 CLIENT_ID = "literally_placeholder"
+
+# TODO: This is very workflow dependent atm.
+COMFY_OUTPUT_GLB_NODE = "154"
+COMFY_INPUT_IMG_NODE = "196"
+COMFY_INPUT_TEXT_NODE = "192"
 
 log = logging.getLogger("app.api.comfy")
 
@@ -53,28 +59,44 @@ class HistoryResponse(BaseModel):
     meta: dict
 
 
-async def track_progress():
+async def track_progress(prompt_id: str):
     """Generator that interprets ComfyUI's progress reports."""
     async for ws in connect(f"{WS_ADDRESS}/ws?clientId={CLIENT_ID}"):
         try:
             async for raw in ws:
-                # TODO: Should filter by prompt_id here, in case one day we somehow
-                # get comfyui to handle multiple workflows at once.
-                msg = json.loads(raw)
+                msg: dict = json.loads(raw)
+                try:
+                    m = ComfyUIMessageAdapter.validate_python(msg, strict=True)
+                # Don't reconnect on unknown msg type, just continue.
+                except ValidationError as e:
+                    log.error(f"Unknown message type: {msg}")
+                    yield f"Unknown msg: {m}"
+                    continue
 
-                if msg["type"] == "progress":
-                    yield f"Progress: {msg['data']['value']}/{msg['data']['max']}"
-                elif msg["type"] == "executing":
-                    yield f"Executing node: {msg['data']['node']}"
-                elif msg["type"] == "execution_cached":
-                    yield f"Cached execution: {msg['data']}"
-                elif msg["type"] == "executed":
-                    yield f"Executed node: {msg['data']['node']}"
-                    # TODO: This is very workflow dependent atm.
-                    if msg["data"]["node"] == "154":
-                        yield "Generation complete."
-                        yield True
-                        return
+                # Filter for only msg related to current prompt, but don't filter
+                # for general status messages.
+                if hasattr(m.data, "prompt_id") and m.data.prompt_id != prompt_id:  # type: ignore
+                    continue
+
+                # Below is based on the specific ComfyUI commit inside comfy_msg_structs.py.
+                if m.type == "status":
+                    yield f"Queue Remaining: {m.data.status.exec_info.queue_remaining - 1}"
+                elif m.type == "progress":
+                    yield f"Progress ({m.data.node}): {m.data.value}/{m.data.max}"
+                elif m.type == "executing":
+                    yield f"Executing Node: {m.data.node}"
+                elif m.type == "execution_cached":
+                    yield f"Cached Nodes: {', '.join(m.data.nodes)}"
+                # TODO: Possible to yield intermediate outputs here.
+                elif m.type == "executed":
+                    yield f"Executed Node: {m.data.node}"
+                elif m.type == "execution_success":
+                    yield f"Complete: {m.data.prompt_id}"
+                    yield True
+                    return
+
+            # Combined with continue on unknown msg type above, this should catch
+            # any case where the generation ends without a success message.
             raise RuntimeError("Connection closed without generation completion?")
         except ConnectionClosed:
             log.warning("WebSocket connection closed, retrying...")
@@ -95,9 +117,8 @@ def queue_prompt(image_metadata: ImageMetadata, sketch_description: str):
     with open(PROMPT_DIR / PROMPT_NAME, "r") as file:
         prompt = json.load(file)
 
-    # TODO: This is very workflow dependent atm.
-    prompt["196"]["inputs"]["image"] = image_metadata.name
-    prompt["192"]["inputs"]["text"] = sketch_description
+    prompt[COMFY_INPUT_IMG_NODE]["inputs"]["image"] = image_metadata.name
+    prompt[COMFY_INPUT_TEXT_NODE]["inputs"]["text"] = sketch_description
 
     data = {"prompt": prompt, "client_id": CLIENT_ID}
     headers = {"Content-Type": "application/json"}
@@ -142,7 +163,7 @@ async def generate_3d_prompt(image: Image.Image, sketch_description: str):
     img_meta = upload_image(image)
     prompt_meta = queue_prompt(img_meta, sketch_description)
 
-    async for status in track_progress():
+    async for status in track_progress(prompt_meta.prompt_id):
         if isinstance(status, str):
             yield False, status
         elif isinstance(status, bool):
@@ -154,8 +175,7 @@ async def generate_3d_prompt(image: Image.Image, sketch_description: str):
 
     await asyncio.sleep(1)
     hist_data = get_history(prompt_meta.prompt_id)
-    # TODO: This is very workflow dependent atm.
-    filename = hist_data.outputs["154"]["result"][0]
+    filename = hist_data.outputs[COMFY_OUTPUT_GLB_NODE]["result"][0]
     raw_file = get_file(filename, "3D", "output")
     yield True, raw_file
 
