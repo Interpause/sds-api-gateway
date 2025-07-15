@@ -53,14 +53,14 @@ class StatusData(BaseModel):
     """Data payload for 'status' messages."""
 
     status: StatusInfo
-    sid: str
+    sid: Optional[str] = None
 
 
 class ExecutingData(BaseModel):
     """Data payload for 'executing' messages. Some fields are optional as
     they appear to be added in different phases of the event."""
 
-    node: str
+    node: Optional[str] = None
     prompt_id: Optional[str] = None
     display_node: Optional[str] = None
 
@@ -98,6 +98,11 @@ class ExecutionSuccessData(BaseModel):
     """Gemini didn't see this one cuz it wasn't in my log dump since my code exits by checking another message type..."""
 
     prompt_id: str
+
+
+class ExecutionStartData(BaseModel):
+    prompt_id: str
+    timestamp: int
 
 
 # --- Top-Level Message Models ---
@@ -146,6 +151,13 @@ class ExecutionSuccessMessage(BaseModel):
     data: ExecutionSuccessData
 
 
+class ExecutionStartMessage(BaseModel):
+    """A 'execution_start' message, indicating the workflow has started."""
+
+    type: Literal["execution_start"]
+    data: ExecutionStartData
+
+
 # --- Discriminated Union ---
 # This type hint can represent any of the message types defined above. Pydantic
 # will automatically use the 'type' field to determine which specific model
@@ -159,6 +171,7 @@ ComfyUIMessage = Annotated[
         ExecutedMessage,
         ProgressMessage,
         ExecutionSuccessMessage,
+        ExecutionStartMessage,
     ],
     Field(discriminator="type"),
 ]

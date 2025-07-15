@@ -70,7 +70,7 @@ async def track_progress(prompt_id: str):
                 # Don't reconnect on unknown msg type, just continue.
                 except ValidationError as e:
                     log.error(f"Unknown message type: {msg}")
-                    yield f"Unknown msg: {m}"
+                    yield f"Unknown msg: {msg}"
                     continue
 
                 # Filter for only msg related to current prompt, but don't filter
@@ -90,6 +90,8 @@ async def track_progress(prompt_id: str):
                 # TODO: Possible to yield intermediate outputs here.
                 elif m.type == "executed":
                     yield f"Executed Node: {m.data.node}"
+                elif m.type == "execution_start":
+                    yield f"Started: {m.data.prompt_id}"
                 elif m.type == "execution_success":
                     yield f"Complete: {m.data.prompt_id}"
                     yield True
