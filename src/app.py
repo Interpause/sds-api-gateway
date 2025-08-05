@@ -33,7 +33,7 @@ __all__ = ["create_app"]
 
 log = logging.getLogger("app")
 
-HOST_URL = "http://nixrobo.home.arpa:3000"
+HOST_URL = "https://recovr.interpause.dev"
 
 # TODO:
 # - Setup websocket/SSE/streaming response version of events so client don't have to poll server for updates.
