@@ -231,6 +231,7 @@ class GenerationTask:
             self.status = "FAILED"
             self.event_log.append(f"Error: {e}")
             self.duration = time.monotonic() - start_time
+            log.error(f"Generation task failed: {e}", exc_info=e)
             return None
 
         self.status = "COMPLETED"

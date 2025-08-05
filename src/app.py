@@ -60,7 +60,8 @@ def create_app():
         req: Annotated[RequestGenerate3D, Form(..., media_type="multipart/form-data")],
     ) -> ResponseGenerate3D:
         """Endpoint to generate 3D model from user's sketch and description."""
-        image = await asyncio.to_thread(Image.open, req.image.file)
+        image = Image.open(req.image.file)
+        await asyncio.to_thread(image.load)  # Ensure the image is loaded in the thread
         client_id = req.client_id
 
         prompt = await groq_describe_image(groq, image, req.prompt)
