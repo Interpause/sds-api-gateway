@@ -14,7 +14,7 @@ from PIL import Image
 from src.api.comfy.hdri import create_hdri_task
 from src.api.comfy.obj import create_3d_task
 from src.api.comfy.shared import GenerationTask
-from src.api.llm import ai_create_client, ai_describe_image
+from src.api.llm import ai_create_client, ai_describe_image, ai_expand_prompt
 from src.structs import (
     RequestGenerate3D,
     RequestGenerateHDRI,
@@ -155,10 +155,7 @@ def create_app():
         """Endpoint to generate hdri from user's description."""
         client_id = req.client_id
 
-        # TODO: function to expand the prompt for clip and t5.
-        # t5_prompt, clip_prompt = await groq_expand_for_clip(groq, req.prompt)
-        t5_prompt = req.prompt
-        clip_prompt = t5_prompt
+        t5_prompt, clip_prompt = await ai_expand_prompt(ai_client, req.prompt)
 
         tasks = workflow_tasks.setdefault(client_id, {})
         task_id = uuid4().hex
