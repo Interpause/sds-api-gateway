@@ -1,5 +1,4 @@
-"""For functions related to ComfyUI."""
-# Some parts referenced from: https://www.viewcomfy.com/blog/building-a-production-ready-comfyui-api
+"""Shared stuff across both comfy workflows."""
 
 import asyncio
 import io
@@ -17,29 +16,24 @@ from pydantic import BaseModel, ValidationError
 from websockets.asyncio.client import connect
 from websockets.exceptions import ConnectionClosed
 
-import src.prompts
-from src.api.comfy_msg_structs import ComfyUIMessageAdapter
+import src.api.comfy.prompts as prompts
+from src.api.comfy.msg_structs import ComfyUIMessageAdapter
 
-PROMPT_DIR = Path(src.prompts.__file__).parent.absolute()
-PROMPT_NAME = "sketch23d_api_faster.json"
+log = logging.getLogger("app.api.comfy")
+
+PROMPT_DIR = Path(prompts.__file__).parent.absolute()
 SERVER_ADDRESS = "http://nixrobo.home.arpa:8187"
 WS_ADDRESS = "ws://nixrobo.home.arpa:8187"
 CLIENT_ID = "literally_placeholder"
 
-# TODO: This is very workflow dependent atm.
-COMFY_OUTPUT_GLB_NODE = "154"
-COMFY_INPUT_IMG_NODE = "196"
-COMFY_INPUT_TEXT_NODE = "192"
 
-log = logging.getLogger("app.api.comfy")
+class HistoryResponse(BaseModel):
+    """Response for workflow history (Based off API response)."""
 
-
-class ImageMetadata(BaseModel):
-    """Metadata for uploaded image (Based off API response)."""
-
-    name: str
-    subfolder: str
-    type: str
+    prompt: list
+    outputs: dict
+    status: dict
+    meta: dict
 
 
 class PromptQueueResponse(BaseModel):
@@ -50,13 +44,12 @@ class PromptQueueResponse(BaseModel):
     node_errors: dict
 
 
-class HistoryResponse(BaseModel):
-    """Response for workflow history (Based off API response)."""
+class ImageMetadata(BaseModel):
+    """Metadata for uploaded image (Based off API response)."""
 
-    prompt: list
-    outputs: dict
-    status: dict
-    meta: dict
+    name: str
+    subfolder: str
+    type: str
 
 
 async def track_progress(prompt_id: str):
@@ -114,21 +107,6 @@ async def track_progress(prompt_id: str):
             return
 
 
-def queue_prompt(image_metadata: ImageMetadata, sketch_description: str):
-    """Submit a prompt to ComfyUI's queue."""
-    with open(PROMPT_DIR / PROMPT_NAME, "r") as file:
-        prompt = json.load(file)
-
-    prompt[COMFY_INPUT_IMG_NODE]["inputs"]["image"] = image_metadata.name
-    prompt[COMFY_INPUT_TEXT_NODE]["inputs"]["text"] = sketch_description
-
-    data = {"prompt": prompt, "client_id": CLIENT_ID}
-    headers = {"Content-Type": "application/json"}
-    resp = requests.post(f"{SERVER_ADDRESS}/prompt", json=data, headers=headers)
-    obj = PromptQueueResponse.model_validate_json(resp.content)
-    return obj
-
-
 def get_history(prompt_id: str):
     """Get workflow history (and hence results) for given prompt ID."""
     resp = requests.get(f"{SERVER_ADDRESS}/history/{prompt_id}")
@@ -160,28 +138,6 @@ def upload_image(image: Image.Image):
     return obj
 
 
-async def generate_3d_prompt(image: Image.Image, sketch_description: str):
-    """Generator that uses ComfyUI to generate 3D object from user's sketch and description."""
-    img_meta = upload_image(image)
-    prompt_meta = queue_prompt(img_meta, sketch_description)
-
-    async for status in track_progress(prompt_meta.prompt_id):
-        if isinstance(status, str):
-            yield False, status
-        elif isinstance(status, bool):
-            if status:
-                break
-            else:
-                yield False, "An error occurred during generation."
-                return
-
-    await asyncio.sleep(1)
-    hist_data = get_history(prompt_meta.prompt_id)
-    filename = hist_data.outputs[COMFY_OUTPUT_GLB_NODE]["result"][0]
-    raw_file = get_file(filename, "3D", "output")
-    yield True, raw_file
-
-
 # TODO: pretty limited; if we can parse the workflow events more accurately, this
 # can be more useful.
 TaskStatus = Literal["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "FAILED"]
@@ -190,10 +146,9 @@ TaskStatus = Literal["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "FAILED"]
 class GenerationTask:
     """Class to manage a generation task."""
 
-    def __init__(self, image: Image.Image, description: str):
+    def __init__(self, generator):
         """Initialize."""
-        self.image = image
-        self.description = description
+        self.generator = generator
         self.event_log = []
         self.status: TaskStatus = "NOT_STARTED"
         self.task = None
@@ -214,8 +169,7 @@ class GenerationTask:
         start_time = time.monotonic()
 
         try:
-            gen = generate_3d_prompt(self.image, self.description)
-            async for done, msg in gen:
+            async for done, msg in self.generator:
                 if not done:
                     self.event_log.append(msg)
                 else:

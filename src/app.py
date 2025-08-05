@@ -11,7 +11,8 @@ from fastapi import FastAPI, Form, HTTPException
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
-from src.api.comfy import GenerationTask
+from src.api.comfy.obj import create_3d_task
+from src.api.comfy.shared import GenerationTask
 from src.api.groq import groq_create_client, groq_describe_image, groq_transcribe_audio
 from src.structs import (
     RequestAudioTranscription,
@@ -68,7 +69,7 @@ def create_app():
 
         tasks = workflow_tasks.setdefault(client_id, {})
         task_id = uuid4().hex
-        task = GenerationTask(image, prompt.strip())
+        task = create_3d_task(image, prompt.strip())
         tasks[task_id] = task
 
         task.start()
