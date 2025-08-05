@@ -70,16 +70,3 @@ class ResponseGenerationResult(BaseModel):
 
     success: bool
     url: Optional[str] = None
-
-
-class RequestAudioTranscription(BaseModel):
-    """Request model for audio transcription."""
-
-    client_id: str
-    audio_file: UploadFile
-
-
-class ResponseAudioTranscription(BaseModel):
-    """Response model for audio transcription."""
-
-    transcription: str

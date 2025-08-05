@@ -14,15 +14,13 @@ from PIL import Image
 from src.api.comfy.hdri import create_hdri_task
 from src.api.comfy.obj import create_3d_task
 from src.api.comfy.shared import GenerationTask
-from src.api.groq import groq_create_client, groq_describe_image, groq_transcribe_audio
+from src.api.llm import ai_create_client, ai_describe_image
 from src.structs import (
-    RequestAudioTranscription,
     RequestGenerate3D,
     RequestGenerateHDRI,
     RequestGenerationEvents,
     RequestGenerationResult,
     RequestGenerationStatus,
-    ResponseAudioTranscription,
     ResponseGenerateTask,
     ResponseGenerationEvents,
     ResponseGenerationResult,
@@ -53,7 +51,7 @@ def create_app():
     Creating the app within a function prevents mishaps if using multiprocessing.
     """
     app = FastAPI()
-    groq = groq_create_client()
+    ai_client = ai_create_client()
     # Map of client to map of task id to GenerationTask.
     workflow_tasks: Dict[str, Dict[str, GenerationTask]] = {}
 
@@ -68,7 +66,7 @@ def create_app():
         await asyncio.to_thread(image.load)  # Ensure the image is loaded in the thread
         client_id = req.client_id
 
-        prompt = await groq_describe_image(groq, image, req.prompt)
+        prompt = await ai_describe_image(ai_client, image, req.prompt)
 
         tasks = workflow_tasks.setdefault(client_id, {})
         task_id = uuid4().hex
@@ -147,16 +145,6 @@ def create_app():
 
         url = f"{HOST_URL}/static/generated/{client_id}/obj/{task_id}.glb"
         return ResponseGenerationResult(success=True, url=url)
-
-    @app.post("/audio/transcribe")
-    async def transcribe_audio(
-        req: Annotated[
-            RequestAudioTranscription, Form(..., media_type="multipart/form-data")
-        ],
-    ) -> ResponseAudioTranscription:
-        """Endpoint to transcribe audio."""
-        transcription = await groq_transcribe_audio(groq, req.audio_file)
-        return ResponseAudioTranscription(transcription=transcription)
 
     @app.post("/hdri/add_task")
     async def add_hdri_task(
