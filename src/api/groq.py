@@ -24,6 +24,8 @@ STT_MODEL = "distil-whisper-large-v3-en"
 # https://console.groq.com/docs/vision
 VLM_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
+EMERGENCY_BYPASS = True
+
 
 def groq_create_client():
     """Initialize groq client."""
@@ -66,6 +68,9 @@ async def groq_describe_image(
     client: groq.AsyncClient, image: Image.Image, description: str | None = None
 ):
     """Generate prompt based off user's sketch and description."""
+    if EMERGENCY_BYPASS:
+        return f"3D product render, futuristic {description}, finely detailed, purism, ue 5, a computer rendering, minimalism, octane render, 4k"
+
     buf = io.BytesIO()
     await asyncio.to_thread(image.save, buf, format="webp", quality=70)
     img_bytes = buf.getvalue()
