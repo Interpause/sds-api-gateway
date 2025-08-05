@@ -31,7 +31,7 @@ class ImageOutput(BaseModel):
 
     filename: str
     subfolder: str
-    type: Literal["temp"]
+    type: Literal["temp", "output"]
 
 
 class ExecutedOutput(BaseModel):

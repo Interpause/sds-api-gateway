@@ -5,6 +5,7 @@ import logging
 
 import av
 import numpy as np
+from PIL import Image
 
 log = logging.getLogger("app.utils")
 
@@ -79,3 +80,13 @@ def setup_logging(log_path):
         logging.Formatter("%(asctime)s|%(levelname)s: %(message)s", datefmt="%H:%M:%S")
     )
     logger.addHandler(ch)
+
+
+def png_to_jpg(png_data: bytes, quality=75) -> bytes:
+    """Convert PNG image data to JPEG format."""
+    with io.BytesIO(png_data) as buf:
+        img = Image.open(buf)
+        img = img.convert("RGB")
+        jpg_buf = io.BytesIO()
+        img.save(jpg_buf, format="JPEG", quality=quality, optimize=True)
+        return jpg_buf.getvalue()

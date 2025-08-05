@@ -17,7 +17,14 @@ class RequestGenerate3D(BaseModel):
     prompt: Optional[str] = None
 
 
-class ResponseGenerate3D(BaseModel):
+class RequestGenerateHDRI(BaseModel):
+    """Request model for generating 3D content."""
+
+    client_id: str
+    prompt: str
+
+
+class ResponseGenerateTask(BaseModel):
     """Response model for 3D generation."""
 
     task_id: str

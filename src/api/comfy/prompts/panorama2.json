@@ -1,0 +1,1032 @@
+{
+  "5": {
+    "inputs": {
+      "width": 1408,
+      "height": 704,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "13",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "10": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "13": {
+    "inputs": {
+      "noise": [
+        "25",
+        0
+      ],
+      "guider": [
+        "22",
+        0
+      ],
+      "sampler": [
+        "16",
+        0
+      ],
+      "sigmas": [
+        "17",
+        0
+      ],
+      "latent_image": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "16": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "17": {
+    "inputs": {
+      "scheduler": "normal",
+      "steps": 4,
+      "denoise": 1,
+      "model": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
+  },
+  "22": {
+    "inputs": {
+      "model": [
+        "85",
+        0
+      ],
+      "conditioning": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "BasicGuider",
+    "_meta": {
+      "title": "BasicGuider"
+    }
+  },
+  "25": {
+    "inputs": {
+      "noise_seed": 586349392595980
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "RandomNoise"
+    }
+  },
+  "27": {
+    "inputs": {
+      "clip_l": "equirectangular 360 degree panorama, dense ancient forest, at dawn, trees with twisted trunks, covered with moss, winding path of rounded stones, sunlight through canopy of leaves, small river",
+      "t5xxl": "Equirectangular 360 degree panorama. A dense, ancient forest is bathed in the soft glow of dawn. The trees, towering giants with twisted trunks and vast canopies, are covered in a thick layer of emerald-green moss. A small, winding path made of smooth river stones winds its way through the underbrush, disappearing into the shadows. Sunlight filters through the leaves, casting dappled patterns on the forest floor. A gentle babbling brook can be heard nearby, with the sound of birdsong echoing through the trees.",
+      "guidance": 2.5,
+      "clip": [
+        "85",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncodeFlux",
+    "_meta": {
+      "title": "CLIPTextEncodeFlux"
+    }
+  },
+  "39": {
+    "inputs": {
+      "noise": [
+        "52",
+        0
+      ],
+      "guider": [
+        "22",
+        0
+      ],
+      "sampler": [
+        "74",
+        0
+      ],
+      "sigmas": [
+        "40",
+        0
+      ],
+      "latent_image": [
+        "163",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "40": {
+    "inputs": {
+      "scheduler": "normal",
+      "steps": 2,
+      "denoise": 0.4,
+      "model": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
+  },
+  "42": {
+    "inputs": {
+      "model_name": "4x_foolhardy_Remacri.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "43": {
+    "inputs": {
+      "upscale_model": [
+        "42",
+        0
+      ],
+      "image": [
+        "118",
+        0
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel",
+    "_meta": {
+      "title": "Upscale Image (using Model)"
+    }
+  },
+  "48": {
+    "inputs": {
+      "samples": [
+        "39",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "51": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 0.5,
+      "image": [
+        "43",
+        0
+      ]
+    },
+    "class_type": "ImageScaleBy",
+    "_meta": {
+      "title": "Upscale Image By"
+    }
+  },
+  "52": {
+    "inputs": {
+      "noise_seed": 481873266798742
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "RandomNoise"
+    }
+  },
+  "74": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "76": {
+    "inputs": {
+      "unet_name": "flux1-dev-Q8_0.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "Unet Loader (GGUF)"
+    }
+  },
+  "82": {
+    "inputs": {
+      "x": [
+        "107",
+        0
+      ],
+      "y": 0,
+      "zoom": 1,
+      "angle": 0,
+      "shear": 0,
+      "border_handling": "symmetric",
+      "constant_color": "#000000",
+      "filter_type": "bilinear",
+      "stretch_x": 1,
+      "stretch_y": 1,
+      "use_normalized": false,
+      "image": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "Transform Image (mtb)",
+    "_meta": {
+      "title": "Transform Image (mtb)"
+    }
+  },
+  "85": {
+    "inputs": {
+      "lora_name": "equirectangular_flux_lora_v3_000003072.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "202",
+        0
+      ],
+      "clip": [
+        "202",
+        1
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "90": {
+    "inputs": {
+      "x": [
+        "100",
+        0
+      ],
+      "y": 0,
+      "resize_source": false,
+      "destination": [
+        "82",
+        0
+      ],
+      "source": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "92": {
+    "inputs": {
+      "shape": "square",
+      "frames": 1,
+      "location_x": [
+        "100",
+        0
+      ],
+      "location_y": 0,
+      "grow": 0,
+      "frame_width": 1408,
+      "frame_height": 704,
+      "shape_width": [
+        "126",
+        0
+      ],
+      "shape_height": 1408
+    },
+    "class_type": "CreateShapeMask",
+    "_meta": {
+      "title": "Create Shape Mask"
+    }
+  },
+  "100": {
+    "inputs": {
+      "op": "Div",
+      "a": 1408,
+      "b": 2
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "106": {
+    "inputs": {
+      "op": "Neg",
+      "a": [
+        "100",
+        0
+      ]
+    },
+    "class_type": "CM_IntUnaryOperation",
+    "_meta": {
+      "title": "IntUnaryOperation"
+    }
+  },
+  "107": {
+    "inputs": {
+      "a": [
+        "106",
+        0
+      ]
+    },
+    "class_type": "CM_IntToFloat",
+    "_meta": {
+      "title": "IntToFloat"
+    }
+  },
+  "108": {
+    "inputs": {
+      "samples": [
+        "109",
+        0
+      ],
+      "mask": [
+        "203",
+        0
+      ]
+    },
+    "class_type": "SetLatentNoiseMask",
+    "_meta": {
+      "title": "Set Latent Noise Mask"
+    }
+  },
+  "109": {
+    "inputs": {
+      "pixels": [
+        "90",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "113": {
+    "inputs": {
+      "noise": [
+        "120",
+        0
+      ],
+      "guider": [
+        "22",
+        0
+      ],
+      "sampler": [
+        "122",
+        0
+      ],
+      "sigmas": [
+        "114",
+        0
+      ],
+      "latent_image": [
+        "108",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "114": {
+    "inputs": {
+      "scheduler": "normal",
+      "steps": 2,
+      "denoise": 0.5,
+      "model": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
+  },
+  "118": {
+    "inputs": {
+      "samples": [
+        "113",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "120": {
+    "inputs": {
+      "noise_seed": 674536047087907
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "RandomNoise"
+    }
+  },
+  "122": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "126": {
+    "inputs": {
+      "op": "Div",
+      "a": 1408,
+      "b": 2
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "128": {
+    "inputs": {
+      "noise": [
+        "135",
+        0
+      ],
+      "guider": [
+        "22",
+        0
+      ],
+      "sampler": [
+        "137",
+        0
+      ],
+      "sigmas": [
+        "129",
+        0
+      ],
+      "latent_image": [
+        "144",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "129": {
+    "inputs": {
+      "scheduler": "normal",
+      "steps": 2,
+      "denoise": 0.4,
+      "model": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
+  },
+  "133": {
+    "inputs": {
+      "samples": [
+        "128",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "135": {
+    "inputs": {
+      "noise_seed": 511768678302034
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "RandomNoise"
+    }
+  },
+  "137": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "138": {
+    "inputs": {
+      "x": [
+        "143",
+        0
+      ],
+      "y": 0,
+      "zoom": 1,
+      "angle": 0,
+      "shear": 0,
+      "border_handling": "symmetric",
+      "constant_color": "#000000",
+      "filter_type": "bilinear",
+      "stretch_x": 1,
+      "stretch_y": 1,
+      "use_normalized": false,
+      "image": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "Transform Image (mtb)",
+    "_meta": {
+      "title": "Transform Image (mtb)"
+    }
+  },
+  "139": {
+    "inputs": {
+      "x": [
+        "141",
+        0
+      ],
+      "y": 0,
+      "resize_source": false,
+      "destination": [
+        "138",
+        0
+      ],
+      "source": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "140": {
+    "inputs": {
+      "shape": "square",
+      "frames": 1,
+      "location_x": [
+        "141",
+        0
+      ],
+      "location_y": 0,
+      "grow": 0,
+      "frame_width": [
+        "147",
+        0
+      ],
+      "frame_height": [
+        "148",
+        0
+      ],
+      "shape_width": [
+        "149",
+        0
+      ],
+      "shape_height": [
+        "147",
+        0
+      ]
+    },
+    "class_type": "CreateShapeMask",
+    "_meta": {
+      "title": "Create Shape Mask"
+    }
+  },
+  "141": {
+    "inputs": {
+      "op": "Div",
+      "a": [
+        "147",
+        0
+      ],
+      "b": 2
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "142": {
+    "inputs": {
+      "op": "Neg",
+      "a": [
+        "141",
+        0
+      ]
+    },
+    "class_type": "CM_IntUnaryOperation",
+    "_meta": {
+      "title": "IntUnaryOperation"
+    }
+  },
+  "143": {
+    "inputs": {
+      "a": [
+        "142",
+        0
+      ]
+    },
+    "class_type": "CM_IntToFloat",
+    "_meta": {
+      "title": "IntToFloat"
+    }
+  },
+  "144": {
+    "inputs": {
+      "samples": [
+        "145",
+        0
+      ],
+      "mask": [
+        "205",
+        0
+      ]
+    },
+    "class_type": "SetLatentNoiseMask",
+    "_meta": {
+      "title": "Set Latent Noise Mask"
+    }
+  },
+  "145": {
+    "inputs": {
+      "pixels": [
+        "139",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "147": {
+    "inputs": {
+      "op": "Mul",
+      "a": 1408,
+      "b": 2
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "148": {
+    "inputs": {
+      "op": "Mul",
+      "a": 704,
+      "b": 2
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "149": {
+    "inputs": {
+      "op": "Div",
+      "a": [
+        "147",
+        0
+      ],
+      "b": 2
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "150": {
+    "inputs": {
+      "images": [
+        "139",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "View Seam"
+    }
+  },
+  "153": {
+    "inputs": {
+      "clip_name1": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux",
+      "device": "default"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
+  },
+  "159": {
+    "inputs": {
+      "shape": "square",
+      "frames": 1,
+      "location_x": [
+        "160",
+        0
+      ],
+      "location_y": 0,
+      "grow": 0,
+      "frame_width": [
+        "147",
+        0
+      ],
+      "frame_height": [
+        "148",
+        0
+      ],
+      "shape_width": [
+        "166",
+        0
+      ],
+      "shape_height": [
+        "147",
+        0
+      ]
+    },
+    "class_type": "CreateShapeMask",
+    "_meta": {
+      "title": "Create Shape Mask"
+    }
+  },
+  "160": {
+    "inputs": {
+      "op": "Div",
+      "a": [
+        "147",
+        0
+      ],
+      "b": 2
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "163": {
+    "inputs": {
+      "samples": [
+        "164",
+        0
+      ],
+      "mask": [
+        "204",
+        0
+      ]
+    },
+    "class_type": "SetLatentNoiseMask",
+    "_meta": {
+      "title": "Set Latent Noise Mask"
+    }
+  },
+  "164": {
+    "inputs": {
+      "pixels": [
+        "51",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "166": {
+    "inputs": {
+      "op": "Div",
+      "a": [
+        "167",
+        0
+      ],
+      "b": 4
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "167": {
+    "inputs": {
+      "op": "Mul",
+      "a": [
+        "147",
+        0
+      ],
+      "b": 3
+    },
+    "class_type": "CM_IntBinaryOperation",
+    "_meta": {
+      "title": "IntBinaryOperation"
+    }
+  },
+  "170": {
+    "inputs": {
+      "modes": "left-right",
+      "fill_technique": "Fill - Polylines Sharp",
+      "divergence": 2.5,
+      "separation": 0,
+      "stereo_balance": 0,
+      "stereo_offset_exponent": 2,
+      "depth_map_blur": true,
+      "depth_blur_edge_threshold": 6,
+      "image": [
+        "133",
+        0
+      ],
+      "depth_map": [
+        "171",
+        0
+      ]
+    },
+    "class_type": "StereoImageNode",
+    "_meta": {
+      "title": "Stereo Image Node"
+    }
+  },
+  "171": {
+    "inputs": {
+      "a": 6.283185307179586,
+      "bg_threshold": 0.1,
+      "resolution": 1024,
+      "image": [
+        "133",
+        0
+      ]
+    },
+    "class_type": "MiDaS-DepthMapPreprocessor",
+    "_meta": {
+      "title": "MiDaS Depth Map"
+    }
+  },
+  "172": {
+    "inputs": {
+      "images": [
+        "171",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "173": {
+    "inputs": {
+      "filename_prefix": "equirectangular/stereo",
+      "images": [
+        "170",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "175": {
+    "inputs": {
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "202": {
+    "inputs": {
+      "lora_name": "Flux-Sch-SingleBlocks-BF16.sft",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "76",
+        0
+      ],
+      "clip": [
+        "153",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "203": {
+    "inputs": {
+      "kernel_size": 32,
+      "sigma": 32,
+      "mask": [
+        "92",
+        0
+      ]
+    },
+    "class_type": "ImpactGaussianBlurMask",
+    "_meta": {
+      "title": "Gaussian Blur Mask"
+    }
+  },
+  "204": {
+    "inputs": {
+      "kernel_size": 32,
+      "sigma": 32,
+      "mask": [
+        "159",
+        0
+      ]
+    },
+    "class_type": "ImpactGaussianBlurMask",
+    "_meta": {
+      "title": "Gaussian Blur Mask"
+    }
+  },
+  "205": {
+    "inputs": {
+      "kernel_size": 32,
+      "sigma": 32,
+      "mask": [
+        "140",
+        0
+      ]
+    },
+    "class_type": "ImpactGaussianBlurMask",
+    "_meta": {
+      "title": "Gaussian Blur Mask"
+    }
+  }
+}
