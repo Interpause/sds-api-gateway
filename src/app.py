@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Form, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
@@ -51,6 +52,16 @@ def create_app():
     Creating the app within a function prevents mishaps if using multiprocessing.
     """
     app = FastAPI()
+
+    # Add CORS middleware to allow all origins
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     ai_client = ai_create_client()
     # Map of client to map of task id to GenerationTask.
     workflow_tasks: Dict[str, Dict[str, GenerationTask]] = {}
