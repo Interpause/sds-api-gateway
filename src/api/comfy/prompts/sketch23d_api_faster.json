@@ -168,11 +168,7 @@
   },
   "85": {
     "inputs": {
-      "model": "hunyuan3d-paint-v2-0-turbo",
-      "compile_args": [
-        "173",
-        0
-      ]
+      "model": "hunyuan3d-paint-v2-0-turbo"
     },
     "class_type": "DownloadAndLoadHy3DPaintModel",
     "_meta": {
@@ -596,21 +592,6 @@
     "class_type": "MaskToImage",
     "_meta": {
       "title": "Convert Mask to Image"
-    }
-  },
-  "173": {
-    "inputs": {
-      "backend": "inductor",
-      "fullgraph": false,
-      "mode": "max-autotune-no-cudagraphs",
-      "dynamic": true,
-      "dynamo_cache_size_limit": 64,
-      "compile_transformer": true,
-      "compile_vae": true
-    },
-    "class_type": "Hy3DTorchCompileSettings",
-    "_meta": {
-      "title": "Hy3D Torch Compile Settings"
     }
   },
   "181": {
