@@ -75,7 +75,7 @@ Example prompts for an AI art model specialized in Product Design renders:
 
     prompt += f"""
 
-Given the user's sketch image, your task is to output a prompt for the AI art model. Give your output in JSON format with the following schema:
+Given the user's sketch image, your task is to output a prompt for the AI art model. Use the following schema:
 {json.dumps(SketchPrompt.model_json_schema())}\
 """
 
